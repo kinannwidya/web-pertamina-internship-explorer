@@ -497,7 +497,36 @@ export default function Home() {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [modalData, setModalData] = useState({ isOpen: false, job: null, targetStatus: "" });
 
-  // Tambahkan di dalam fungsi Home, sebelum return:
+  const [wishlistPage, setWishlistPage] = useState(1);
+
+const paginatedWishlist = useMemo(() => {
+  // 1. Filter data berdasarkan kategori aktif
+  const filtered = wishlist.filter(item => {
+    if (activeWishlistCat === 'wishlist') return true;
+    if (activeWishlistCat === 'shortlist') return item.isShortlist;
+    if (activeWishlistCat === 'trash') return item.isTrash;
+    return false;
+  });
+
+  // 2. Potong (slice) sesuai halaman
+  const start = (wishlistPage - 1) * itemsPerPage;
+  return filtered.slice(start, start + itemsPerPage);
+}, [wishlist, activeWishlistCat, wishlistPage]);
+
+const totalWishlistPages = Math.ceil(
+  wishlist.filter(item => {
+    if (activeWishlistCat === 'wishlist') return true;
+    if (activeWishlistCat === 'shortlist') return item.isShortlist;
+    if (activeWishlistCat === 'trash') return item.isTrash;
+    return false;
+  }).length / itemsPerPage
+);
+
+// Tambahkan di dalam komponen Home
+useEffect(() => {
+  setWishlistPage(1);
+}, [activeWishlistCat]);
+
 const statsData = useMemo(() => {
   const totalJobs = allJobs.length;
   const totalPositions = allJobs.reduce((acc, job) => acc + (parseInt(job["Jumlah Posisi"]) || 0), 0);
@@ -800,16 +829,15 @@ const statsData = useMemo(() => {
           </button>
         </div>
       </header>
+ 
+<main className="max-w-7xl w-full mx-auto px-6 md:px-12 mt-10 relative z-10">
+        <StatsDashboard 
+          totalJobs={statsData.totalJobs} 
+          totalPositions={statsData.totalPositions} 
+          totalApplicants={statsData.totalApplicants} 
+        />
 
-
-      <main className="max-w-7xl w-full mx-auto px-6 md:px-12 mt-10 relative z-10">
-  <StatsDashboard 
-    totalJobs={statsData.totalJobs} 
-    totalPositions={statsData.totalPositions} 
-    totalApplicants={statsData.totalApplicants} 
-  />
-
-        {activeTab === "explore" && (
+                {activeTab === "explore" && (
           <div className="animate-fade-in">
             <FilterHeader 
               search={search} setSearch={setSearch}
@@ -894,6 +922,7 @@ const statsData = useMemo(() => {
           </div>
         )}
 
+        {/* SATU BLOK KODE UNTUK WISHAB TAB */}
         {activeTab === "wishlist" && (
           <div className="animate-fade-in">
             <FilterHeader 
@@ -914,103 +943,116 @@ const statsData = useMemo(() => {
             
             {activeWishlistCat === 'shortlist' ? (
               <div className="animate-fade-in">
-    {/* 💡 Tambahkan pesan instruksional di sini */}
-    <div className="mb-6 p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-2xl flex items-center gap-3">
-      <GripVertical className="text-yellow-400 shrink-0" size={24} />
-      <div>
-        <p className="text-sm font-bold text-yellow-400">Atur Prioritas Anda</p>
-        <p className="text-xs text-yellow-200/60">Tahan dan geser ikon garis vertikal pada kartu untuk menyusun urutan prioritas sesuai keinginanmu.</p>
-      </div>
-    </div>
-              <DragDropContext onDragEnd={handleOnDragEnd}>
-                <Droppable droppableId="droppable-prioritas">
-                  {(provided) => (
-                    <div 
-                      {...provided.droppableProps} 
-                      ref={provided.innerRef} 
-                      className="grid grid-cols-1 gap-6 min-h-[200px] items-start"
-                    >
-                      {filteredJobs.filter(job => wishlist.some(w => w?.job?.Posisi === job.Posisi && w?.job?.Perusahaan === job.Perusahaan && w?.isShortlist)).length === 0 ? (
-                        <div className="text-center py-16 bg-white/[0.02] border border-blue-500/10 rounded-2xl">
-                          <p className="text-blue-200/40 text-sm font-light">Tidak ada lowongan prioritas.</p>
+                <div className="mb-6 p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-2xl flex items-center gap-3">
+                  <GripVertical className="text-yellow-400 shrink-0" size={24} />
+                  <div>
+                    <p className="text-sm font-bold text-yellow-400">Atur Prioritas Anda</p>
+                    <p className="text-xs text-yellow-200/60">Tahan dan geser ikon garis vertikal pada kartu untuk menyusun urutan prioritas.</p>
+                  </div>
+                </div>
+                
+                {paginatedWishlist.length === 0 ? (
+                  <div className="text-center py-16 bg-white/[0.02] border border-blue-500/10 rounded-2xl">
+                    <p className="text-blue-200/40 text-sm font-light">Tidak ada lowongan prioritas.</p>
+                  </div>
+                ) : (
+                  <DragDropContext onDragEnd={handleOnDragEnd}>
+                    <Droppable droppableId="droppable-prioritas">
+                      {(provided) => (
+                        <div {...provided.droppableProps} ref={provided.innerRef} className="grid grid-cols-1 gap-6 min-h-[200px] items-start">
+                          {paginatedWishlist.map((itemWish, idx) => (
+                            <Draggable key={`drag-${itemWish.job.Posisi}-${itemWish.job.Perusahaan}`} draggableId={`${itemWish.job.Posisi}-${itemWish.job.Perusahaan}`} index={idx}>
+                              {(providedDrag) => (
+                                <div ref={providedDrag.innerRef} {...providedDrag.draggableProps} className="transition-shadow duration-200">
+                                  <JobCard 
+                                    job={itemWish.job} index={idx} isWishlistView={true}
+                                    expandedCards={expandedCards} toggleExpand={toggleExpand}
+                                    wishlistItem={itemWish} openStatusModal={handleOpenStatusModal}
+                                    removeFromWishlist={removeFromWishlist} updateNotes={updateNotesDirectly}
+                                    dragHandleProps={providedDrag.dragHandleProps}
+                                  />
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
                         </div>
-                      ) : (
-                        filteredJobs
-                          .filter(job => wishlist.some(w => w?.job?.Posisi === job.Posisi && w?.job?.Perusahaan === job.Perusahaan && w?.isShortlist))
-                          .sort((a, b) => {
-                            const idxA = wishlist.findIndex(w => w?.job?.Posisi === a.Posisi && w?.job?.Perusahaan === a.Perusahaan);
-                            const idxB = wishlist.findIndex(w => w?.job?.Posisi === b.Posisi && w?.job?.Perusahaan === b.Perusahaan);
-                            return idxA - idxB;
-                          })
-                          .map((job, idx) => {
-                            const itemWish = wishlist.find(w => w?.job?.Posisi === job.Posisi && w?.job?.Perusahaan === job.Perusahaan);
-                            return (
-                              <Draggable key={`drag-${job.Posisi}-${job.Perusahaan}`} draggableId={`${job.Posisi}-${job.Perusahaan}`} index={idx}>
-                                {(providedDrag) => (
-                                  <div
-                                    ref={providedDrag.innerRef}
-                                    {...providedDrag.draggableProps}
-                                    className="transition-shadow duration-200"
-                                  >
-                                    <JobCard 
-                                      job={job} 
-                                      index={idx} 
-                                      isWishlistView={true}
-                                      indexOfFirstItem={0}
-                                      expandedCards={expandedCards}
-                                      toggleExpand={toggleExpand}
-                                      wishlistItem={itemWish}
-                                      openStatusModal={handleOpenStatusModal}
-                                      removeFromWishlist={removeFromWishlist}
-                                      updateNotes={updateNotesDirectly}
-                                      dragHandleProps={providedDrag.dragHandleProps}
-                                    />
-                                  </div>
-                                )}
-                              </Draggable>
-                            );
-                          })
                       )}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
+                    </Droppable>
+                  </DragDropContext>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[400px] items-start">
-                {filteredJobs.filter(job => wishlist.some(w => w?.job?.Posisi === job.Posisi && w?.job?.Perusahaan === job.Perusahaan && (activeWishlistCat === 'wishlist' ? true : w?.isTrash))).length === 0 ? (
+                {paginatedWishlist.length === 0 ? (
                   <div className="lg:col-span-2 text-center py-16 bg-white/[0.02] border border-blue-500/10 rounded-2xl">
                     <Bookmark className="mx-auto text-blue-500/30 mb-3" size={32} />
                     <p className="text-blue-200/40 text-sm font-light mb-4">Tidak ada lowongan di kategori ini.</p>
                   </div>
                 ) : (
-                  filteredJobs
-                    .filter(job => wishlist.some(w => w?.job?.Posisi === job.Posisi && w?.job?.Perusahaan === job.Perusahaan && (activeWishlistCat === 'wishlist' ? true : w?.isTrash)))
-                    .map((job, idx) => {
-                      const itemWish = wishlist.find(w => w?.job?.Posisi === job.Posisi && w?.job?.Perusahaan === job.Perusahaan);
-                      return (
-                        <JobCard 
-                          key={`wish-${job.Posisi}-${job.Perusahaan}`} 
-                          job={job} 
-                          index={idx} 
-                          isWishlistView={true}
-                          indexOfFirstItem={0}
-                          expandedCards={expandedCards}
-                          toggleExpand={toggleExpand}
-                          wishlistItem={itemWish}
-                          openStatusModal={handleOpenStatusModal}
-                          removeFromWishlist={removeFromWishlist}
-                          updateNotes={updateNotesDirectly}
-                        />
-                      );
-                    })
+                  paginatedWishlist.map((itemWish, idx) => (
+                    <JobCard 
+                      key={`wish-${itemWish.job.Posisi}-${itemWish.job.Perusahaan}`} 
+                      job={itemWish.job} index={idx} isWishlistView={true}
+                      expandedCards={expandedCards} toggleExpand={toggleExpand}
+                      wishlistItem={itemWish} openStatusModal={handleOpenStatusModal}
+                      removeFromWishlist={removeFromWishlist} updateNotes={updateNotesDirectly}
+                    />
+                  ))
                 )}
               </div>
             )}
+
+            {/* --- PAGINATION CONTROLS --- */}
+            {totalWishlistPages > 1 && (
+  <div className="mt-12 flex items-center justify-center gap-2 flex-wrap">
+    {/* Tombol Previous */}
+    <button 
+      type="button" 
+      onClick={() => setWishlistPage(p => Math.max(p - 1, 1))} 
+      disabled={wishlistPage === 1} 
+      className="p-2 rounded-xl border border-purple-500/20 bg-black/40 hover:bg-pink-500/20 hover:border-pink-500 text-purple-300 disabled:opacity-20 disabled:cursor-not-allowed transition-all me-2"
+    >
+      <ChevronLeft size={16} />
+    </button>
+
+    {/* Indikator Angka Halaman */}
+    {Array.from({ length: totalWishlistPages }, (_, i) => i + 1).map((pageNumber) => {
+      // Logika untuk menampilkan halaman 1, terakhir, dan yang di sekitar current page
+      if (pageNumber === 1 || pageNumber === totalWishlistPages || Math.abs(pageNumber - wishlistPage) <= 1) {
+        return (
+          <button
+            key={`page-${pageNumber}`}
+            type="button"
+            onClick={() => setWishlistPage(pageNumber)}
+            className={`w-9 h-9 text-xs font-bold rounded-xl border transition-all ${
+              wishlistPage === pageNumber 
+                ? "bg-pink-500/20 border-pink-500 text-pink-400 shadow-[0_0_10px_rgba(236,72,153,0.2)]" 
+                : "bg-black/40 border-purple-500/20 text-purple-300 hover:bg-purple-500/10 hover:border-purple-500/50"
+            }`}
+          >
+            {pageNumber}
+          </button>
+        );
+      } else if (pageNumber === 2 || pageNumber === totalWishlistPages - 1) {
+        return <span key={`dots-${pageNumber}`} className="text-purple-500/50 px-1 text-xs">...</span>;
+      }
+      return null;
+    })}
+
+    {/* Tombol Next */}
+    <button 
+      type="button" 
+      onClick={() => setWishlistPage(p => Math.min(p + 1, totalWishlistPages))} 
+      disabled={wishlistPage === totalWishlistPages} 
+      className="p-2 rounded-xl border border-purple-500/20 bg-black/40 hover:bg-pink-500/20 hover:border-pink-500 text-purple-300 disabled:opacity-20 disabled:cursor-not-allowed transition-all ms-2"
+    >
+      <ChevronRight size={16} />
+    </button>
+  </div>
+)}
           </div>
         )}
-
       </main>
 
       <footer className="w-full mt-20 py-8 border-t border-purple-500/10 bg-black/20 backdrop-blur-md relative z-10 text-center">
