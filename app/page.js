@@ -12,8 +12,8 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
       // --- 💡 KOMPONEN DASHBOARD STATISTIK ---
 const StatsDashboard = ({ totalJobs, totalPositions, totalApplicants }) => {
   const stats = [
-    { label: "Total Lowongan", value: totalJobs.toLocaleString(), icon: Briefcase, color: "text-pink-400" },
-    { label: "Total Posisi Tersedia", value: totalPositions.toLocaleString(), icon: UserCheck, color: "text-emerald-400" },
+    { label: "Lowongan Aktif", value: totalJobs.toLocaleString(), icon: Briefcase, color: "text-pink-400" },
+    { label: "Posisi Dibuka", value: totalPositions.toLocaleString(), icon: UserCheck, color: "text-emerald-400" },
     { label: "Total Pelamar", value: totalApplicants.toLocaleString(), icon: Users, color: "text-cyan-400" }
   ];
 
@@ -26,7 +26,7 @@ const StatsDashboard = ({ totalJobs, totalPositions, totalApplicants }) => {
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest text-purple-300/60 font-bold">{stat.label}</p>
-            <h4 className="text-xl font-black text-purple-300">{stat.value}</h4>
+            <h4 className="text-xl font-black text-white">{stat.value}</h4>
           </div>
         </div>
       ))}
@@ -338,10 +338,6 @@ const JobCard = ({
                 <Hash size={10} /> {dragHandleProps ? `Prioritas #${index + 1}` : `${index + 1}`}
               </span>
 
-              <span className="text-[9px] font-black tracking-widest text-pink-400 bg-pink-500/10 border border-pink-500/20 px-2 py-0.5 rounded uppercase">
-                INTERNSHIP 2026
-              </span>
-
               {isShortlist && !dragHandleProps && (
                 <span className="text-[9px] font-black tracking-widest text-yellow-400 bg-yellow-500/20 border border-yellow-500/40 px-2 py-0.5 rounded uppercase flex items-center gap-1">
                   <Star size={8} fill="currentColor" /> PRIORITAS
@@ -354,8 +350,8 @@ const JobCard = ({
               )}
             </div>
             <h3 className="text-lg font-bold text-white group-hover:text-pink-400 transition-colors tracking-wide leading-tight mt-1">
-              {job.Posisi}
-            </h3>
+  {job.Posisi}
+</h3>
           </div>
           
           {/* 💡 Penataan Baru: Sejajar ke Samping (Ikon Simpan di Sisi Kiri Tombol Lamar) */}
@@ -408,7 +404,6 @@ const JobCard = ({
 )}
         
         <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-4 text-[11px] font-semibold text-purple-300/70">
-          <div className="flex items-center gap-1"><Building2 size={13} className="text-pink-400/70" /> {job.Perusahaan}</div>
           <div className="flex items-center gap-1"><MapPin size={13} className="text-blue-400/70" /> {job.Lokasi}</div>
           <div className="flex items-center gap-1"><Layers size={13} className="text-purple-400/70" /> {dapatkanPulau(job.Lokasi)}</div>
           <div className="flex items-center gap-1"><Calendar size={13} className="text-purple-400/70" /> {job.Periode}</div>
@@ -778,12 +773,13 @@ const statsData = useMemo(() => {
         <h1 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tight text-white uppercase drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
           Pertamina <span className="text-transparent bg-clip-text bg-linear-to-r from-pink-500 via-purple-400 to-blue-400">Internship</span>
         </h1>
-        <p className="mt-4 text-sm md:text-base text-purple-200/70 max-w-2xl mx-auto font-light tracking-wide">
-          Jelajahi dan saring data lowongan magang Pertamina 2026.
-        </p>
+        <p className="mt-4 text-sm md:text-base text-purple-200/70 max-w-3xl mx-auto leading-relaxed">
+  Cari lowongan magang Pertamina 2026 berdasarkan jurusan, lokasi, perusahaan,
+  lalu simpan dan urutkan prioritas lamaranmu dalam satu dashboard.
+</p>
         
-        <p className="mt-2 text-[11px] font-semibold uppercase tracking-widest text-cyan-400/80 bg-cyan-500/5 border border-cyan-500/10 px-3 py-1 rounded-md inline-block">
-          Data Terakhir Diperbarui: 2 Juli 2026 pukul 17.00 WIB
+        <p className="mt-2 text-[11px] font-semibold uppercase tracking-widest text-cyan-400/80 bg-cyan-500/20 border border-cyan-500/40 px-3 py-1 rounded-md inline-block">
+          Data Terakhir Diperbarui: 2 Juli 2026 pukul 20.30 WIB
         </p>
 
         {/* 💡 Tombol navigasi ini sekarang hanya muncul di desktop (md ke atas) */}
