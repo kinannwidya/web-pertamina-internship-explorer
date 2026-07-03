@@ -808,7 +808,7 @@ const statsData = useMemo(() => {
 </p>
         
         <p className="mt-2 text-[11px] font-semibold uppercase tracking-widest text-cyan-400/80 bg-cyan-500/20 border border-cyan-500/40 px-3 py-1 rounded-md inline-block">
-          Data Terakhir Diperbarui: 2 Juli 2026 pukul 20.30 WIB
+          Data Terakhir Diperbarui: 3 Juli 2026 pukul 11.25 WIB
         </p>
 
         {/* 💡 Tombol navigasi ini sekarang hanya muncul di desktop (md ke atas) */}
