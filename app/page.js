@@ -638,6 +638,7 @@ export default function Home() {
     setExpandedCards({}); 
 
     // 2. Setup Wishlist Data (wishlist state)
+    // 2. Setup Wishlist Data (wishlist state)
     let resultWishlist = wishlist.filter(item => {
       const matchFilter = filterFunction(item.job);
       let matchCategory = true;
@@ -654,7 +655,15 @@ export default function Home() {
     else if (sortBy === "peluang-kecil") resultWishlist.sort((a, b) => ((a.job["Jumlah Posisi"] || 1) / (a.job["Jumlah Pelamar"] || 1)) - ((b.job["Jumlah Posisi"] || 1) / (b.job["Jumlah Pelamar"] || 1)));
 
     setFilteredWishlist(resultWishlist);
-    setWishlistPage(1);
+
+    // 💡 LOGIKA PERBAIKAN: Hanya reset halaman jika halaman saat ini kosong akibat datanya hilang/pindah kategori
+    const totalPagesBaru = Math.ceil(resultWishlist.length / itemsPerPage);
+    setWishlistPage(currentPageSekarang => {
+      if (currentPageSekarang > totalPagesBaru && totalPagesBaru > 0) {
+        return totalPagesBaru; // Tetap di halaman terakhir yang valid
+      }
+      return currentPageSekarang; // Pertahankan posisi halaman saat ini
+    });
 
   }, [search, jurusan, company, island, location, sortBy, allJobs, wishlist, activeWishlistCat]);
 
