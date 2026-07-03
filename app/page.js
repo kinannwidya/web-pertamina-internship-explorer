@@ -283,7 +283,7 @@ const NotesModal = ({ isOpen, onClose, onSave, jobData, targetStatus }) => {
 // --- 💡 KOMPONEN JOBCARD (Layout Bersih & Rapi) ---
 const JobCard = ({ 
   job, index, isWishlistView, indexOfFirstItem, expandedCards, toggleExpand,
-  wishlistItem, openStatusModal, removeFromWishlist, updateNotes, dragHandleProps
+  wishlistItem, openStatusModal, removeFromWishlist, updateNotes, dragHandleProps, isFiltering
 }) => {
   const globalIdx = isWishlistView ? `wishlist-${job.Posisi}-${job.Perusahaan}` : indexOfFirstItem + index;
   const isExpanded = !!expandedCards[globalIdx];
@@ -324,7 +324,14 @@ const JobCard = ({
             <div className="flex flex-wrap items-center gap-2">
               {/* 💡 Drag Handle Icon */}
               {dragHandleProps && (
-                <div {...dragHandleProps} className="p-1 text-purple-400/40 hover:text-yellow-400 cursor-grab active:cursor-grabbing transition-colors rounded bg-white/5">
+                <div 
+                  {...dragHandleProps} 
+                  className={`p-1 rounded bg-white/5 transition-colors ${
+                    isFiltering 
+                    ? "cursor-not-allowed text-purple-400/10" 
+                    : "cursor-grab active:cursor-grabbing text-purple-400/40 hover:text-yellow-400"
+                  }`}
+                >
                   <GripVertical size={14} />
                 </div>
               )}
@@ -736,6 +743,8 @@ export default function Home() {
     setWishlist([...prioritasItems, ...nonPrioritasItems]);
   };
 
+  const isFiltering = search !== "" || jurusan !== "Semua Jurusan" || company !== "Semua" || island !== "Semua" || location !== "Semua" || sortBy !== "default";
+
   const wishlistCounts = useMemo(() => {
     const safeWishlist = Array.isArray(wishlist) ? wishlist.filter(Boolean) : [];
     return {
@@ -836,6 +845,7 @@ export default function Home() {
                     job={job} 
                     index={idx} 
                     isWishlistView={false}
+                    isFiltering={isFiltering}
                     indexOfFirstItem={indexOfFirstItem}
                     expandedCards={expandedCards}
                     toggleExpand={toggleExpand}
@@ -917,13 +927,26 @@ export default function Home() {
             
             {activeWishlistCat === 'shortlist' ? (
               <div className="animate-fade-in">
-                <div className="mb-6 p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-2xl flex items-center gap-3">
-                  <GripVertical className="text-yellow-400 shrink-0" size={24} />
-                  <div>
-                    <p className="text-sm font-bold text-yellow-400">Atur Prioritas Anda</p>
-                    <p className="text-xs text-yellow-200/60">Tahan dan geser ikon garis vertikal pada kartu untuk menyusun urutan prioritas.</p>
-                  </div>
-                </div>
+<div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 border ${
+  isFiltering ? "bg-red-500/5 border-red-500/20" : "bg-yellow-500/5 border-yellow-500/20"
+}`}>
+  <GripVertical className={isFiltering ? "text-red-400" : "text-yellow-400"} size={24} />
+  <div>
+    <p className="text-sm font-bold text-yellow-400">
+      {isFiltering ? "Urutan Dikunci (Filter Aktif)" : "Atur Prioritas Anda"}
+    </p>
+    <p className="text-xs text-yellow-200/60">
+      {isFiltering 
+        ? "Silakan Reset Filter untuk menyusun ulang urutan prioritas." 
+        : "Tahan dan geser ikon garis vertikal pada kartu untuk menyusun urutan."}
+    </p>
+  </div>
+  {isFiltering && (
+    <button onClick={resetFilter} className="ml-auto text-xs font-bold bg-red-500/20 px-3 py-1.5 rounded-lg text-red-400 hover:bg-red-500/30 transition-all">
+      Reset Filter
+    </button>
+  )}
+</div>
                 
                 {paginatedWishlist.length === 0 ? (
                   <div className="text-center py-16 bg-white/[0.02] border border-blue-500/10 rounded-2xl">
@@ -935,11 +958,16 @@ export default function Home() {
                       {(provided) => (
                         <div {...provided.droppableProps} ref={provided.innerRef} className="grid grid-cols-1 gap-6 min-h-[200px] items-start">
                           {paginatedWishlist.map((itemWish, idx) => (
-                            <Draggable key={`drag-${itemWish.job.Posisi}-${itemWish.job.Perusahaan}`} draggableId={`${itemWish.job.Posisi}-${itemWish.job.Perusahaan}`} index={idx}>
+                            <Draggable 
+                              key={`drag-${itemWish.job.Posisi}-${itemWish.job.Perusahaan}`} 
+                              draggableId={`${itemWish.job.Posisi}-${itemWish.job.Perusahaan}`} 
+                              index={idx}
+                              isDragDisabled={isFiltering}
+                            >
                               {(providedDrag) => (
                                 <div ref={providedDrag.innerRef} {...providedDrag.draggableProps} className="transition-shadow duration-200">
                                   <JobCard 
-                                    job={itemWish.job} index={idx} isWishlistView={true}
+                                    job={itemWish.job} index={idx} isWishlistView={true} isFiltering={isFiltering}
                                     expandedCards={expandedCards} toggleExpand={toggleExpand}
                                     wishlistItem={itemWish} openStatusModal={handleOpenStatusModal}
                                     removeFromWishlist={removeFromWishlist} updateNotes={updateNotesDirectly}
@@ -967,7 +995,7 @@ export default function Home() {
                   paginatedWishlist.map((itemWish, idx) => (
                     <JobCard 
                       key={`wish-${itemWish.job.Posisi}-${itemWish.job.Perusahaan}`} 
-                      job={itemWish.job} index={idx} isWishlistView={true}
+                      job={itemWish.job} index={idx} isWishlistView={true} isFiltering={isFiltering}
                       expandedCards={expandedCards} toggleExpand={toggleExpand}
                       wishlistItem={itemWish} openStatusModal={handleOpenStatusModal}
                       removeFromWishlist={removeFromWishlist} updateNotes={updateNotesDirectly}
