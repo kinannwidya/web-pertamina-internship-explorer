@@ -795,7 +795,7 @@ export default function Home() {
 </p>
         
         <p className="mt-2 text-[11px] font-semibold uppercase tracking-widest text-cyan-400/80 bg-cyan-500/20 border border-cyan-500/40 px-3 py-1 rounded-md inline-block">
-          Data Terakhir Diperbarui: 3 Juli 2026 pukul 11.25 WIB
+          Data Terakhir Diperbarui: 3 Juli 2026 pukul 22.00 WIB
         </p>
 
         <div className="hidden md:flex justify-center gap-4 mt-8">
