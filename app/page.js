@@ -9,7 +9,7 @@ import {
 // 💡 Import modul Drag and Drop resmi untuk React 18+
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
-      // --- 💡 KOMPONEN DASHBOARD STATISTIK ---
+// --- 💡 KOMPONEN DASHBOARD STATISTIK ---
 const StatsDashboard = ({ totalJobs, totalPositions, totalApplicants }) => {
   const stats = [
     { label: "Lowongan Aktif", value: totalJobs.toLocaleString(), icon: Briefcase, color: "text-pink-400" },
@@ -85,11 +85,7 @@ const extractJurusanData = (requirements) => {
   const jurusanPart = parts.find(p => p.toLowerCase().includes("jurusan :"));
   if (!jurusanPart) return [];
   
-  // Ambil teks setelah "Jurusan :"
   const cleanString = jurusanPart.replace(/jurusan\s*:/i, "").trim();
-  
-  // Pecah per koma, tapi JANGAN gabungkan "Semua Jurusan" dengan "Semua Jurusan Teknik"
-  // Kita kembalikan array asli agar filter bisa membedakannya
   return cleanString.split(",").map(j => j.trim()).filter(Boolean);
 };
 
@@ -262,25 +258,25 @@ const NotesModal = ({ isOpen, onClose, onSave, jobData, targetStatus }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[0.5px] p-4 animate-fade-in">
-  <div className="bg-[#1a0f2e] border border-purple-500/60 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-    <h3 className="text-lg font-bold text-white mb-4">{title}</h3>
-    <p className="text-sm text-purple-200/70 mb-2">Tambahkan catatan (Opsional):</p>
-    <textarea
-      value={notes}
-      onChange={(e) => setNotes(e.target.value)}
-      placeholder={placeholder}
-      className="w-full h-32 p-3 bg-black/40 border border-purple-500/20 rounded-xl focus:outline-none focus:border-pink-500 text-white placeholder-purple-200/70 text-sm resize-none mb-6"
-    />
-    <div className="flex justify-end gap-3">
-      <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-bold text-purple-300 hover:text-white bg-white/5 hover:bg-white/10 transition-colors">
-        Cancel
-      </button>
-      <button onClick={handleSave} className="px-5 py-2 rounded-lg text-sm font-bold text-white bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 transition-all shadow-lg">
-        Simpan
-      </button>
+      <div className="bg-[#1a0f2e] border border-purple-500/60 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+        <h3 className="text-lg font-bold text-white mb-4">{title}</h3>
+        <p className="text-sm text-purple-200/70 mb-2">Tambahkan catatan (Opsional):</p>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder={placeholder}
+          className="w-full h-32 p-3 bg-black/40 border border-purple-500/20 rounded-xl focus:outline-none focus:border-pink-500 text-white placeholder-purple-200/70 text-sm resize-none mb-6"
+        />
+        <div className="flex justify-end gap-3">
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-bold text-purple-300 hover:text-white bg-white/5 hover:bg-white/10 transition-colors">
+            Cancel
+          </button>
+          <button onClick={handleSave} className="px-5 py-2 rounded-lg text-sm font-bold text-white bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 transition-all shadow-lg">
+            Simpan
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
   );
 };
 
@@ -350,11 +346,10 @@ const JobCard = ({
               )}
             </div>
             <h3 className="text-lg font-bold text-white group-hover:text-pink-400 transition-colors tracking-wide leading-tight mt-1">
-  {job.Posisi}
-</h3>
+              {job.Posisi}
+            </h3>
           </div>
           
-          {/* 💡 Penataan Baru: Sejajar ke Samping (Ikon Simpan di Sisi Kiri Tombol Lamar) */}
           <div className="flex items-center gap-2 self-end sm:self-start shrink-0">
             <button
               type="button"
@@ -371,37 +366,31 @@ const JobCard = ({
           </div>
         </div>
 
-       {/* 💡 Panel Kontrol Organisasi yang sudah diupdate */}
-{isWishlistView && (
-  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-4 p-2 bg-black/20 rounded-lg border border-white/5">
-    <span className="text-[10px] font-bold uppercase tracking-widest text-purple-400/60 px-1">
-      Aksi Lanjutan:
-    </span>
-    <div className="flex flex-wrap items-center gap-2 flex-1">
-      
-      {/* Tombol Prioritas */}
-      <button 
-        onClick={() => openStatusModal(job, isShortlist ? 'remove-shortlist' : 'shortlist')} 
-        className={`flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1.5 rounded transition-colors uppercase tracking-wider ${isShortlist ? 'text-yellow-400 bg-yellow-500/10 border border-yellow-500/30' : 'text-purple-300 hover:bg-white/5'}`}
-      >
-        {/* Ikon Star hanya muncul jika belum Prioritas */}
-        {!isShortlist && <Star size={12} />} 
-        {isShortlist ? '✓ Terprioritas' : 'Jadikan Prioritas'}
-      </button>
-      
-      {/* Tombol Cadangan */}
-      <button 
-        onClick={() => openStatusModal(job, isTrash ? 'remove-trash' : 'trash')} 
-        className={`flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1.5 rounded transition-colors uppercase tracking-wider ${isTrash ? 'text-red-400 bg-red-500/10 border border-red-500/30' : 'text-purple-300 hover:bg-white/5'}`}
-      >
-        {/* Ikon Trash2 hanya muncul jika belum Cadangan */}
-        {!isTrash && <Trash2 size={12} />} 
-        {isTrash ? '✓ Tercadang' : 'Jadikan Cadangan'}
-      </button>
-      
-    </div>
-  </div>
-)}
+        {/* 💡 Panel Kontrol Organisasi */}
+        {isWishlistView && (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-4 p-2 bg-black/20 rounded-lg border border-white/5">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-purple-400/60 px-1">
+              Aksi Lanjutan:
+            </span>
+            <div className="flex flex-wrap items-center gap-2 flex-1">
+              <button 
+                onClick={() => openStatusModal(job, isShortlist ? 'remove-shortlist' : 'shortlist')} 
+                className={`flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1.5 rounded transition-colors uppercase tracking-wider ${isShortlist ? 'text-yellow-400 bg-yellow-500/10 border border-yellow-500/30' : 'text-purple-300 hover:bg-white/5'}`}
+              >
+                {!isShortlist && <Star size={12} />} 
+                {isShortlist ? '✓ Terprioritas' : 'Jadikan Prioritas'}
+              </button>
+              
+              <button 
+                onClick={() => openStatusModal(job, isTrash ? 'remove-trash' : 'trash')} 
+                className={`flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1.5 rounded transition-colors uppercase tracking-wider ${isTrash ? 'text-red-400 bg-red-500/10 border border-red-500/30' : 'text-purple-300 hover:bg-white/5'}`}
+              >
+                {!isTrash && <Trash2 size={12} />} 
+                {isTrash ? '✓ Tercadang' : 'Jadikan Cadangan'}
+              </button>
+            </div>
+          </div>
+        )}
         
         <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-4 text-[11px] font-semibold text-purple-300/70">
           <div className="flex items-center gap-1"><MapPin size={13} className="text-blue-400/70" /> {job.Lokasi}</div>
@@ -470,9 +459,10 @@ const JobCard = ({
 
 // --- 💡 KOMPONEN UTAMA (HOME) ---
 export default function Home() {
-  
   const [allJobs, setAllJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
+  // 💡 State baru untuk menyimpan hasil filter khusus tab Wishlist
+  const [filteredWishlist, setFilteredWishlist] = useState([]);
   
   const [search, setSearch] = useState("");
   const [jurusan, setJurusan] = useState("Semua Jurusan");
@@ -499,40 +489,25 @@ export default function Home() {
 
   const [wishlistPage, setWishlistPage] = useState(1);
 
-const paginatedWishlist = useMemo(() => {
-  // 1. Filter data berdasarkan kategori aktif
-  const filtered = wishlist.filter(item => {
-    if (activeWishlistCat === 'wishlist') return true;
-    if (activeWishlistCat === 'shortlist') return item.isShortlist;
-    if (activeWishlistCat === 'trash') return item.isTrash;
-    return false;
-  });
+  // 💡 Update: Hitung pagination berdasarkan filteredWishlist, bukan wishlist mentah
+  const paginatedWishlist = useMemo(() => {
+    const start = (wishlistPage - 1) * itemsPerPage;
+    return filteredWishlist.slice(start, start + itemsPerPage);
+  }, [filteredWishlist, wishlistPage]);
 
-  // 2. Potong (slice) sesuai halaman
-  const start = (wishlistPage - 1) * itemsPerPage;
-  return filtered.slice(start, start + itemsPerPage);
-}, [wishlist, activeWishlistCat, wishlistPage]);
+  // 💡 Update: Hitung total page berdasarkan filteredWishlist
+  const totalWishlistPages = Math.ceil(filteredWishlist.length / itemsPerPage);
 
-const totalWishlistPages = Math.ceil(
-  wishlist.filter(item => {
-    if (activeWishlistCat === 'wishlist') return true;
-    if (activeWishlistCat === 'shortlist') return item.isShortlist;
-    if (activeWishlistCat === 'trash') return item.isTrash;
-    return false;
-  }).length / itemsPerPage
-);
+  useEffect(() => {
+    setWishlistPage(1);
+  }, [activeWishlistCat]);
 
-// Tambahkan di dalam komponen Home
-useEffect(() => {
-  setWishlistPage(1);
-}, [activeWishlistCat]);
-
-const statsData = useMemo(() => {
-  const totalJobs = allJobs.length;
-  const totalPositions = allJobs.reduce((acc, job) => acc + (parseInt(job["Jumlah Posisi"]) || 0), 0);
-  const totalApplicants = allJobs.reduce((acc, job) => acc + (parseInt(job["Jumlah Pelamar"]) || 0), 0);
-  return { totalJobs, totalPositions, totalApplicants };
-}, [allJobs]);
+  const statsData = useMemo(() => {
+    const totalJobs = allJobs.length;
+    const totalPositions = allJobs.reduce((acc, job) => acc + (parseInt(job["Jumlah Posisi"]) || 0), 0);
+    const totalApplicants = allJobs.reduce((acc, job) => acc + (parseInt(job["Jumlah Pelamar"]) || 0), 0);
+    return { totalJobs, totalPositions, totalApplicants };
+  }, [allJobs]);
 
   useEffect(() => {
     const savedWishlist = localStorage.getItem("pertamina-wishlist-v4");
@@ -540,7 +515,6 @@ const statsData = useMemo(() => {
       try {
         const parsed = JSON.parse(savedWishlist);
         if (Array.isArray(parsed)) {
-          // Hanya meloloskan item yang valid
           setWishlist(parsed.filter(item => item && item.job));
         }
       } catch (e) {
@@ -611,10 +585,11 @@ const statsData = useMemo(() => {
     }
   }, [island, allJobs]);
 
+  // 💡 Filter Terpadu untuk Explore dan Wishlist
   useEffect(() => {
     const query = search.toLowerCase();
     
-    let result = allJobs.filter((job) => {
+    const filterFunction = (job) => {
       const matchSearch =
         job.Posisi?.toLowerCase().includes(query) ||
         job.Perusahaan?.toLowerCase().includes(query) ||
@@ -624,32 +599,15 @@ const statsData = useMemo(() => {
       let matchJurusan = true;
       if (jurusan !== "Semua Jurusan") {
         const reqJurusanList = extractJurusanData(job.Requirements).map(j => j.toLowerCase());
-        
-        // Logika Baru:
-        // 1. Cek apakah ada kecocokan eksplisit
         const isMatch = reqJurusanList.includes(jurusan.toLowerCase());
-        
-        // 2. Cek apakah lowongan menerima "Semua Jurusan" (Umum)
         const acceptsAll = reqJurusanList.includes("semua jurusan");
-        
-        // 3. Cek apakah lowongan menerima "Semua Jurusan Teknik"
         const acceptsAllTeknik = reqJurusanList.includes("semua jurusan teknik");
-        
-        // Aturan filter:
-        // - Jika jurusan yang dipilih "Semua Jurusan", dia masuk jika ada "semua jurusan"
-        // - Jika jurusan yang dipilih "Teknik Sipil", dia masuk jika ada "semua jurusan teknik" ATAU "teknik sipil"
-        
         const isJurusanTeknik = jurusan.toLowerCase().includes("teknik");
         
-        if (isMatch) {
-            matchJurusan = true;
-        } else if (acceptsAll) {
-            matchJurusan = true;
-        } else if (isJurusanTeknik && acceptsAllTeknik) {
-            matchJurusan = true;
-        } else {
-            matchJurusan = false;
-        }
+        if (isMatch) matchJurusan = true;
+        else if (acceptsAll) matchJurusan = true;
+        else if (isJurusanTeknik && acceptsAllTeknik) matchJurusan = true;
+        else matchJurusan = false;
       }
 
       const matchCompany = company === "Semua" || job.Perusahaan === company;
@@ -657,30 +615,41 @@ const statsData = useMemo(() => {
       const matchLocation = location === "Semua" || job.Lokasi === location;
 
       return matchSearch && matchJurusan && matchCompany && matchIsland && matchLocation;
-    });
+    };
 
-    if (sortBy === "a-z") {
-      result.sort((a, b) => a.Posisi.localeCompare(b.Posisi));
-    } else if (sortBy === "z-a") {
-      result.sort((a, b) => b.Posisi.localeCompare(a.Posisi));
-    } else if (sortBy === "peluang-besar") {
-      result.sort((a, b) => {
-        const rasioA = (a["Jumlah Posisi"] || 1) / (a["Jumlah Pelamar"] || 1);
-        const rasioB = (b["Jumlah Posisi"] || 1) / (b["Jumlah Pelamar"] || 1);
-        return rasioB - rasioA;
-      });
-    } else if (sortBy === "peluang-kecil") {
-      result.sort((a, b) => {
-        const rasioA = (a["Jumlah Posisi"] || 1) / (a["Jumlah Pelamar"] || 1);
-        const rasioB = (b["Jumlah Posisi"] || 1) / (b["Jumlah Pelamar"] || 1);
-        return rasioA - rasioB;
-      });
-    }
+    // 1. Setup Explore Data (allJobs)
+    let resultExplore = allJobs.filter(filterFunction);
     
-    setFilteredJobs(result);
+    // Sort logic Explore
+    if (sortBy === "a-z") resultExplore.sort((a, b) => a.Posisi.localeCompare(b.Posisi));
+    else if (sortBy === "z-a") resultExplore.sort((a, b) => b.Posisi.localeCompare(a.Posisi));
+    else if (sortBy === "peluang-besar") resultExplore.sort((a, b) => ((b["Jumlah Posisi"] || 1) / (b["Jumlah Pelamar"] || 1)) - ((a["Jumlah Posisi"] || 1) / (a["Jumlah Pelamar"] || 1)));
+    else if (sortBy === "peluang-kecil") resultExplore.sort((a, b) => ((a["Jumlah Posisi"] || 1) / (a["Jumlah Pelamar"] || 1)) - ((b["Jumlah Posisi"] || 1) / (b["Jumlah Pelamar"] || 1)));
+    
+    setFilteredJobs(resultExplore);
     setCurrentPage(1); 
     setExpandedCards({}); 
-  }, [search, jurusan, company, island, location, sortBy, allJobs]);
+
+    // 2. Setup Wishlist Data (wishlist state)
+    let resultWishlist = wishlist.filter(item => {
+      const matchFilter = filterFunction(item.job);
+      let matchCategory = true;
+      if (activeWishlistCat === 'shortlist') matchCategory = item.isShortlist;
+      if (activeWishlistCat === 'trash') matchCategory = item.isTrash;
+      
+      return matchFilter && matchCategory;
+    });
+
+    // Sort logic Wishlist
+    if (sortBy === "a-z") resultWishlist.sort((a, b) => a.job.Posisi.localeCompare(b.job.Posisi));
+    else if (sortBy === "z-a") resultWishlist.sort((a, b) => b.job.Posisi.localeCompare(a.job.Posisi));
+    else if (sortBy === "peluang-besar") resultWishlist.sort((a, b) => ((b.job["Jumlah Posisi"] || 1) / (b.job["Jumlah Pelamar"] || 1)) - ((a.job["Jumlah Posisi"] || 1) / (a.job["Jumlah Pelamar"] || 1)));
+    else if (sortBy === "peluang-kecil") resultWishlist.sort((a, b) => ((a.job["Jumlah Posisi"] || 1) / (a.job["Jumlah Pelamar"] || 1)) - ((b.job["Jumlah Posisi"] || 1) / (b.job["Jumlah Pelamar"] || 1)));
+
+    setFilteredWishlist(resultWishlist);
+    setWishlistPage(1);
+
+  }, [search, jurusan, company, island, location, sortBy, allJobs, wishlist, activeWishlistCat]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -706,7 +675,6 @@ const statsData = useMemo(() => {
       const existingItem = wishlist.find(i => i?.job?.Posisi === job.Posisi && i?.job?.Perusahaan === job.Perusahaan);
       setModalData({ isOpen: true, job, targetStatus, notes: existingItem?.notes || "" });
     } else {
-      // Langsung simpan jika status yang diminta adalah 'wishlist' biasa
       updateWishlistData(job, targetStatus, null);
     }
   };
@@ -756,6 +724,8 @@ const statsData = useMemo(() => {
   const handleOnDragEnd = (result) => {
     if (!result.destination) return;
     
+    // Logic drag-and-drop ini memindahkan index visual di tab saat ini, 
+    // Jika data sedang ter-filter kuat, urutan asli di state utama tetap terjaga untuk mencegah bug
     const items = Array.from(wishlist);
     const prioritasItems = items.filter(item => item?.isShortlist);
     const nonPrioritasItems = items.filter(item => !item?.isShortlist);
@@ -781,7 +751,6 @@ const statsData = useMemo(() => {
   }
 
   return (
-    // Tambahkan class pb-20 agar konten tidak tertutup nav
     <div className="min-h-screen bg-[#0d0614] bg-grid-pattern relative pb-24 md:pb-20 overflow-x-hidden">
       <NotesModal 
         isOpen={modalData.isOpen} 
@@ -811,7 +780,6 @@ const statsData = useMemo(() => {
           Data Terakhir Diperbarui: 3 Juli 2026 pukul 11.25 WIB
         </p>
 
-        {/* 💡 Tombol navigasi ini sekarang hanya muncul di desktop (md ke atas) */}
         <div className="hidden md:flex justify-center gap-4 mt-8">
           <button 
             type="button"
@@ -837,7 +805,7 @@ const statsData = useMemo(() => {
           totalApplicants={statsData.totalApplicants} 
         />
 
-                {activeTab === "explore" && (
+        {activeTab === "explore" && (
           <div className="animate-fade-in">
             <FilterHeader 
               search={search} setSearch={setSearch}
@@ -941,6 +909,12 @@ const statsData = useMemo(() => {
               counts={wishlistCounts} 
             />
             
+            <div className="flex justify-between items-center mb-6 px-1">
+              <div className="text-xs text-purple-300/60 font-semibold tracking-wide">
+                Menampilkan <span className="text-white font-bold bg-white/10 px-2 py-0.5 rounded">{paginatedWishlist.length > 0 ? (wishlistPage - 1) * itemsPerPage + 1 : 0}-{Math.min(wishlistPage * itemsPerPage, filteredWishlist.length)}</span> dari <span className="text-blue-400 font-bold text-sm px-0.5">{filteredWishlist.length}</span> {activeWishlistCat === 'shortlist' ? 'Prioritas' : activeWishlistCat === 'trash' ? 'Cadangan' : 'Tersimpan'}
+              </div>
+            </div>
+            
             {activeWishlistCat === 'shortlist' ? (
               <div className="animate-fade-in">
                 <div className="mb-6 p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-2xl flex items-center gap-3">
@@ -953,7 +927,7 @@ const statsData = useMemo(() => {
                 
                 {paginatedWishlist.length === 0 ? (
                   <div className="text-center py-16 bg-white/[0.02] border border-blue-500/10 rounded-2xl">
-                    <p className="text-blue-200/40 text-sm font-light">Tidak ada lowongan prioritas.</p>
+                    <p className="text-blue-200/40 text-sm font-light">Tidak ada lowongan prioritas dengan kriteria filter saat ini.</p>
                   </div>
                 ) : (
                   <DragDropContext onDragEnd={handleOnDragEnd}>
@@ -987,7 +961,7 @@ const statsData = useMemo(() => {
                 {paginatedWishlist.length === 0 ? (
                   <div className="lg:col-span-2 text-center py-16 bg-white/[0.02] border border-blue-500/10 rounded-2xl">
                     <Bookmark className="mx-auto text-blue-500/30 mb-3" size={32} />
-                    <p className="text-blue-200/40 text-sm font-light mb-4">Tidak ada lowongan di kategori ini.</p>
+                    <p className="text-blue-200/40 text-sm font-light mb-4">Tidak ada lowongan dengan kriteria filter saat ini.</p>
                   </div>
                 ) : (
                   paginatedWishlist.map((itemWish, idx) => (
@@ -1003,54 +977,50 @@ const statsData = useMemo(() => {
               </div>
             )}
 
-            {/* --- PAGINATION CONTROLS --- */}
+            {/* --- PAGINATION CONTROLS WISHLIST --- */}
             {totalWishlistPages > 1 && (
-  <div className="mt-12 flex items-center justify-center gap-2 flex-wrap">
-    {/* Tombol Previous */}
-    <button 
-      type="button" 
-      onClick={() => setWishlistPage(p => Math.max(p - 1, 1))} 
-      disabled={wishlistPage === 1} 
-      className="p-2 rounded-xl border border-purple-500/20 bg-black/40 hover:bg-pink-500/20 hover:border-pink-500 text-purple-300 disabled:opacity-20 disabled:cursor-not-allowed transition-all me-2"
-    >
-      <ChevronLeft size={16} />
-    </button>
+              <div className="mt-12 flex items-center justify-center gap-2 flex-wrap">
+                <button 
+                  type="button" 
+                  onClick={() => setWishlistPage(p => Math.max(p - 1, 1))} 
+                  disabled={wishlistPage === 1} 
+                  className="p-2 rounded-xl border border-purple-500/20 bg-black/40 hover:bg-pink-500/20 hover:border-pink-500 text-purple-300 disabled:opacity-20 disabled:cursor-not-allowed transition-all me-2"
+                >
+                  <ChevronLeft size={16} />
+                </button>
 
-    {/* Indikator Angka Halaman */}
-    {Array.from({ length: totalWishlistPages }, (_, i) => i + 1).map((pageNumber) => {
-      // Logika untuk menampilkan halaman 1, terakhir, dan yang di sekitar current page
-      if (pageNumber === 1 || pageNumber === totalWishlistPages || Math.abs(pageNumber - wishlistPage) <= 1) {
-        return (
-          <button
-            key={`page-${pageNumber}`}
-            type="button"
-            onClick={() => setWishlistPage(pageNumber)}
-            className={`w-9 h-9 text-xs font-bold rounded-xl border transition-all ${
-              wishlistPage === pageNumber 
-                ? "bg-pink-500/20 border-pink-500 text-pink-400 shadow-[0_0_10px_rgba(236,72,153,0.2)]" 
-                : "bg-black/40 border-purple-500/20 text-purple-300 hover:bg-purple-500/10 hover:border-purple-500/50"
-            }`}
-          >
-            {pageNumber}
-          </button>
-        );
-      } else if (pageNumber === 2 || pageNumber === totalWishlistPages - 1) {
-        return <span key={`dots-${pageNumber}`} className="text-purple-500/50 px-1 text-xs">...</span>;
-      }
-      return null;
-    })}
+                {Array.from({ length: totalWishlistPages }, (_, i) => i + 1).map((pageNumber) => {
+                  if (pageNumber === 1 || pageNumber === totalWishlistPages || Math.abs(pageNumber - wishlistPage) <= 1) {
+                    return (
+                      <button
+                        key={`page-${pageNumber}`}
+                        type="button"
+                        onClick={() => setWishlistPage(pageNumber)}
+                        className={`w-9 h-9 text-xs font-bold rounded-xl border transition-all ${
+                          wishlistPage === pageNumber 
+                            ? "bg-pink-500/20 border-pink-500 text-pink-400 shadow-[0_0_10px_rgba(236,72,153,0.2)]" 
+                            : "bg-black/40 border-purple-500/20 text-purple-300 hover:bg-purple-500/10 hover:border-purple-500/50"
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  } else if (pageNumber === 2 || pageNumber === totalWishlistPages - 1) {
+                    return <span key={`dots-${pageNumber}`} className="text-purple-500/50 px-1 text-xs">...</span>;
+                  }
+                  return null;
+                })}
 
-    {/* Tombol Next */}
-    <button 
-      type="button" 
-      onClick={() => setWishlistPage(p => Math.min(p + 1, totalWishlistPages))} 
-      disabled={wishlistPage === totalWishlistPages} 
-      className="p-2 rounded-xl border border-purple-500/20 bg-black/40 hover:bg-pink-500/20 hover:border-pink-500 text-purple-300 disabled:opacity-20 disabled:cursor-not-allowed transition-all ms-2"
-    >
-      <ChevronRight size={16} />
-    </button>
-  </div>
-)}
+                <button 
+                  type="button" 
+                  onClick={() => setWishlistPage(p => Math.min(p + 1, totalWishlistPages))} 
+                  disabled={wishlistPage === totalWishlistPages} 
+                  className="p-2 rounded-xl border border-purple-500/20 bg-black/40 hover:bg-pink-500/20 hover:border-pink-500 text-purple-300 disabled:opacity-20 disabled:cursor-not-allowed transition-all ms-2"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>
