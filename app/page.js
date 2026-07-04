@@ -136,14 +136,35 @@ const extractJurusanData = (requirements) => {
 };
 
 // --- 💡 KOMPONEN FILTER HEADER ---
-const FilterHeader = ({ 
-  search, setSearch, 
-  jurusan, setJurusan, daftarJurusan,
-  company, setCompany, companies,
-  island, setIsland, islands,
-  location, setLocation, locations,
-  sortBy, setSortBy, 
-  resetFilter 
+const FilterHeader = ({
+  search, setSearch,
+
+  jurusan,
+  setJurusan,
+  daftarJurusan,
+
+  jurusanQuery,
+  setJurusanQuery,
+  isJurusanOpen,
+  setIsJurusanOpen,
+  filteredJurusan,
+
+  company,
+  setCompany,
+  companies,
+
+  island,
+  setIsland,
+  islands,
+
+  location,
+  setLocation,
+  locations,
+
+  sortBy,
+  setSortBy,
+
+  resetFilter
 }) => {
   return (
     <div className="bg-white/[0.03] backdrop-blur-xl border border-purple-500/20 p-6 rounded-2xl flex flex-col gap-5 mb-8 shadow-2xl shadow-black/50">
@@ -165,16 +186,61 @@ const FilterHeader = ({
         <div>
           <label className="block text-[10px] font-bold uppercase tracking-widest text-purple-400 mb-2">Jurusan</label>
           <div className="relative">
-            <select 
-              value={jurusan} 
-              onChange={(e) => setJurusan(e.target.value)} 
-              className="w-full px-3 py-2.5 bg-black/40 border border-purple-500/20 rounded-xl focus:outline-none focus:border-pink-500 text-purple-200 text-sm cursor-pointer appearance-none transition-all"
-            >
-              {daftarJurusan.map((j) => (
-                <option key={j} value={j} className="bg-[#160d22] text-white">{j}</option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-purple-400/50 pointer-events-none" size={16} />
+            <input
+  type="text"
+  value={isJurusanOpen ? jurusanQuery : jurusan}
+  onChange={(e) => {
+    setJurusanQuery(e.target.value);
+    setIsJurusanOpen(true);
+  }}
+  onFocus={() => {
+    setIsJurusanOpen(true);
+    setJurusanQuery("");
+  }}
+  onBlur={() => {
+    setTimeout(() => {
+      setIsJurusanOpen(false);
+      setJurusanQuery("");
+    }, 150);
+  }}
+  placeholder="Ketik jurusan..."
+  className="w-full px-3 py-2.5 bg-black/40 border border-purple-500/20 rounded-xl focus:outline-none focus:border-pink-500 text-white placeholder-purple-300/50 text-sm"
+/>
+
+<ChevronDown
+  className={`absolute right-3 top-1/2 -translate-y-1/2 text-purple-400/50 pointer-events-none transition-transform ${
+    isJurusanOpen ? "rotate-180" : ""
+  }`}
+  size={16}
+/>
+
+{isJurusanOpen && (
+  <div className="absolute z-50 w-full mt-2 max-h-60 overflow-y-auto bg-[#160d22] border border-purple-500/30 rounded-xl shadow-xl">
+    {filteredJurusan.map((j) => (
+      <div
+        key={j}
+        onMouseDown={() => {
+          setJurusan(j);
+          setJurusanQuery("");
+          setIsJurusanOpen(false);
+        }}
+        className={`px-4 py-2 cursor-pointer text-sm hover:bg-pink-500/20 ${
+          jurusan === j
+            ? "text-pink-400 bg-white/5"
+            : "text-purple-200"
+        }`}
+      >
+        {j}
+      </div>
+    ))}
+
+    {filteredJurusan.length === 0 && (
+      <div className="px-4 py-3 text-sm text-purple-400/70">
+        Jurusan tidak ditemukan
+      </div>
+    )}
+  </div>
+)}
           </div>
         </div>
 
@@ -522,6 +588,8 @@ export default function Home() {
   
   const [search, setSearch] = useState("");
   const [jurusan, setJurusan] = useState("Semua Jurusan");
+  const [jurusanQuery, setJurusanQuery] = useState("");
+  const [isJurusanOpen, setIsJurusanOpen] = useState(false);
   const [company, setCompany] = useState("Semua");
   const [island, setIsland] = useState("Semua"); 
   const [location, setLocation] = useState("Semua");
@@ -531,6 +599,11 @@ export default function Home() {
   const [companies, setCompanies] = useState([]);
   const [islands, setIslands] = useState([]); 
   const [locations, setLocations] = useState([]);
+  const filteredJurusan = useMemo(() => {
+  return daftarJurusan.filter((j) =>
+    j.toLowerCase().includes(jurusanQuery.toLowerCase())
+  );
+}, [daftarJurusan, jurusanQuery]);
   
   const [expandedCards, setExpandedCards] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -842,13 +915,17 @@ export default function Home() {
           Cari lowongan magang Pertamina 2026 berdasarkan jurusan, lokasi, perusahaan,
           lalu simpan dan urutkan prioritas lamaranmu dalam satu dashboard.
         </p>
+
+        <p className="mt-5 text-[11px] font-semibold uppercase tracking-widest text-cyan-400/80 bg-cyan-500/20 border border-cyan-500/40 px-3 py-1 rounded-md inline-block">
+          Data Terakhir Diperbarui: 4 Juli 2026 • 15.15 WIB
+        </p>
         
-        <p className="mt-2 text-[11px] font-semibold uppercase tracking-widest text-cyan-400/80 bg-cyan-500/20 border border-cyan-500/40 px-3 py-1 rounded-md inline-block">
-          Data Terakhir Diperbarui: 4 Juli 2026 pukul 13.00 WIB
+        <p className="mt-6 text-sm font-semibold uppercase tracking-[0.25em] text-pink-400">
+          Deadline Pendaftaran: 5 Juli 2026 • 23.59 WIB
         </p>
 
-        {/* 💡 KOMPONEN COUNTDOWN DIMASUKKAN DI SINI */}
-        <CountdownTimer />
+<CountdownTimer />
+
 
         <div className="hidden md:flex justify-center gap-4 mt-8">
           <button 
@@ -880,6 +957,8 @@ export default function Home() {
             <FilterHeader 
               search={search} setSearch={setSearch}
               jurusan={jurusan} setJurusan={setJurusan} daftarJurusan={daftarJurusan}
+              jurusanQuery={jurusanQuery}
+              setJurusanQuery={setJurusanQuery} isJurusanOpen={isJurusanOpen} setIsJurusanOpen={setIsJurusanOpen} filteredJurusan={filteredJurusan}
               company={company} setCompany={setCompany} companies={companies}
               island={island} setIsland={setIsland} islands={islands}
               location={location} setLocation={setLocation} locations={locations}
@@ -967,6 +1046,7 @@ export default function Home() {
             <FilterHeader 
               search={search} setSearch={setSearch}
               jurusan={jurusan} setJurusan={setJurusan} daftarJurusan={daftarJurusan}
+              setJurusanQuery={setJurusanQuery} isJurusanOpen={isJurusanOpen} setIsJurusanOpen={setIsJurusanOpen} filteredJurusan={filteredJurusan}
               company={company} setCompany={setCompany} companies={companies}
               island={island} setIsland={setIsland} islands={islands}
               location={location} setLocation={setLocation} locations={locations}
