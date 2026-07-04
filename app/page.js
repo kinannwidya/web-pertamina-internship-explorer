@@ -6,8 +6,54 @@ import {
   ChevronRight, Globe, Layers, Hash, Star, Bookmark, 
   Trash2, Edit3, X, Check, FileText, AlignLeft, Users, UserCheck, GripVertical
 } from "lucide-react";
-// 💡 Import modul Drag and Drop resmi untuk React 18+
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+
+// --- 💡 KOMPONEN COUNTDOWN TIMER ---
+const CountdownTimer = () => {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    // Deadline: 5 Juli 2026 23:59:59 WIB (+07:00)
+    const deadline = new Date("2026-07-05T23:59:59+07:00").getTime();
+
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = deadline - now;
+
+      if (distance < 0) {
+        clearInterval(interval);
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      } else {
+        setTimeLeft({
+          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((distance % (1000 * 60)) / 1000)
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="mt-8 flex justify-center gap-3 sm:gap-4 animate-fade-in">
+      {Object.entries(timeLeft).map(([unit, value]) => (
+        <div key={unit} className="flex flex-col items-center">
+          <div className="bg-white/[0.03] border border-pink-500/20 backdrop-blur-md rounded-xl w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center shadow-[0_0_15px_rgba(236,72,153,0.15)] relative overflow-hidden group">
+            <div className="absolute inset-0 bg-linear-to-b from-pink-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-linear-to-b from-white to-pink-200">
+              {value.toString().padStart(2, '0')}
+            </span>
+          </div>
+          <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-pink-400/80 mt-2">
+            {unit === 'days' ? 'Hari' : unit === 'hours' ? 'Jam' : unit === 'minutes' ? 'Menit' : 'Detik'}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 // --- 💡 KOMPONEN DASHBOARD STATISTIK ---
 const StatsDashboard = ({ totalJobs, totalPositions, totalApplicants }) => {
@@ -214,7 +260,7 @@ const WishlistCategoryMenu = ({ activeCategory, setActiveCategory, counts }) => 
   ];
 
   return (
-    <div className="flex flex-wrap gap-3 mb-8">
+    <div className="sticky top-0 z-40 flex flex-wrap gap-3 -mx-6 px-6 py-4 mb-6 bg-[#0d0614]/90 backdrop-blur-xl border-b border-white/10 md:static md:bg-transparent md:p-0 md:mb-8 md:border-none md:mx-0 shadow-lg md:shadow-none">
       {categories.map(cat => (
         <button
           key={cat.id}
@@ -355,6 +401,10 @@ const JobCard = ({
             <h3 className="text-lg font-bold text-white group-hover:text-pink-400 transition-colors tracking-wide leading-tight mt-1">
               {job.Posisi}
             </h3>
+
+            <div className="flex items-center gap-1.5 text-blue-400/70 text-xs font-medium">
+    {job.Perusahaan}
+  </div>
           </div>
           
           <div className="flex items-center gap-2 self-end sm:self-start shrink-0">
@@ -468,7 +518,6 @@ const JobCard = ({
 export default function Home() {
   const [allJobs, setAllJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
-  // 💡 State baru untuk menyimpan hasil filter khusus tab Wishlist
   const [filteredWishlist, setFilteredWishlist] = useState([]);
   
   const [search, setSearch] = useState("");
@@ -496,13 +545,11 @@ export default function Home() {
 
   const [wishlistPage, setWishlistPage] = useState(1);
 
-  // 💡 Update: Hitung pagination berdasarkan filteredWishlist, bukan wishlist mentah
   const paginatedWishlist = useMemo(() => {
     const start = (wishlistPage - 1) * itemsPerPage;
     return filteredWishlist.slice(start, start + itemsPerPage);
   }, [filteredWishlist, wishlistPage]);
 
-  // 💡 Update: Hitung total page berdasarkan filteredWishlist
   const totalWishlistPages = Math.ceil(filteredWishlist.length / itemsPerPage);
 
   useEffect(() => {
@@ -542,7 +589,6 @@ export default function Home() {
     return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
   };
 
-  // 💡 PERBAIKAN DI SINI: Cache buster + Sinkronisasi data aman tanpa hapus wishlist
   useEffect(() => {
     fetch(`/data.json?v=${new Date().getTime()}`)
       .then((res) => res.json())
@@ -555,7 +601,6 @@ export default function Home() {
 
         setAllJobs(dataBersih);
         
-        // 🔄 Sinkronkan data internal wishlist dengan data pelamar terbaru dari JSON baru
         setWishlist(prevWishlist => {
           if (!Array.isArray(prevWishlist)) return [];
           return prevWishlist.map(item => {
@@ -563,7 +608,6 @@ export default function Home() {
             const dataTerbaru = dataBersih.find(
               j => j.Posisi === item.job.Posisi && j.Perusahaan === item.job.Perusahaan
             );
-            // Angka pelamar update, tapi status Prioritas & Catatan Anda aman tersimpan
             return dataTerbaru ? { ...item, job: dataTerbaru } : item;
           });
         });
@@ -606,7 +650,6 @@ export default function Home() {
     }
   }, [island, allJobs]);
 
-  // 💡 Filter Terpadu untuk Explore dan Wishlist
   useEffect(() => {
     const query = search.toLowerCase();
     
@@ -638,10 +681,8 @@ export default function Home() {
       return matchSearch && matchJurusan && matchCompany && matchIsland && matchLocation;
     };
 
-    // 1. Setup Explore Data (allJobs)
     let resultExplore = allJobs.filter(filterFunction);
     
-    // Sort logic Explore
     if (sortBy === "a-z") resultExplore.sort((a, b) => a.Posisi.localeCompare(b.Posisi));
     else if (sortBy === "z-a") resultExplore.sort((a, b) => b.Posisi.localeCompare(a.Posisi));
     else if (sortBy === "peluang-besar") resultExplore.sort((a, b) => ((b["Jumlah Posisi"] || 1) / (b["Jumlah Pelamar"] || 1)) - ((a["Jumlah Posisi"] || 1) / (a["Jumlah Pelamar"] || 1)));
@@ -651,7 +692,6 @@ export default function Home() {
     setCurrentPage(1); 
     setExpandedCards({}); 
 
-    // 2. Setup Wishlist Data (wishlist state)
     let resultWishlist = wishlist.filter(item => {
       const matchFilter = filterFunction(item.job);
       let matchCategory = true;
@@ -661,7 +701,6 @@ export default function Home() {
       return matchFilter && matchCategory;
     });
 
-    // Sort logic Wishlist
     if (sortBy === "a-z") resultWishlist.sort((a, b) => a.job.Posisi.localeCompare(b.job.Posisi));
     else if (sortBy === "z-a") resultWishlist.sort((a, b) => b.job.Posisi.localeCompare(a.job.Posisi));
     else if (sortBy === "peluang-besar") resultWishlist.sort((a, b) => ((b.job["Jumlah Posisi"] || 1) / (b.job["Jumlah Pelamar"] || 1)) - ((a.job["Jumlah Posisi"] || 1) / (a.job["Jumlah Pelamar"] || 1)));
@@ -669,13 +708,12 @@ export default function Home() {
 
     setFilteredWishlist(resultWishlist);
 
-    // 💡 LOGIKA PERBAIKAN: Hanya reset halaman jika halaman saat ini kosong akibat datanya hilang/pindah kategori
     const totalPagesBaru = Math.ceil(resultWishlist.length / itemsPerPage);
     setWishlistPage(currentPageSekarang => {
       if (currentPageSekarang > totalPagesBaru && totalPagesBaru > 0) {
-        return totalPagesBaru; // Tetap di halaman terakhir yang valid
+        return totalPagesBaru; 
       }
-      return currentPageSekarang; // Pertahankan posisi halaman saat ini
+      return currentPageSekarang; 
     });
 
   }, [search, jurusan, company, island, location, sortBy, allJobs, wishlist, activeWishlistCat]);
@@ -698,7 +736,6 @@ export default function Home() {
     setSortBy("default");
   };
 
-  // --- ACTIONS WISHLIST ---
   const handleOpenStatusModal = (job, targetStatus) => {
     if (targetStatus === 'shortlist' || targetStatus === 'trash') {
       const existingItem = wishlist.find(i => i?.job?.Posisi === job.Posisi && i?.job?.Perusahaan === job.Perusahaan);
@@ -780,7 +817,8 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0614] bg-grid-pattern relative pb-24 md:pb-20 overflow-x-hidden">
+    // 💡 HAPUS `overflow-x-hidden` di parent terluar agar `sticky` menu pada mobile bisa berjalan sempurna
+    <div className="min-h-screen bg-[#0d0614] bg-grid-pattern relative pb-24 md:pb-20 max-w-[100vw] overflow-clip">
       <NotesModal 
         isOpen={modalData.isOpen} 
         onClose={() => setModalData({ isOpen: false, job: null, targetStatus: "" })} 
@@ -806,8 +844,11 @@ export default function Home() {
         </p>
         
         <p className="mt-2 text-[11px] font-semibold uppercase tracking-widest text-cyan-400/80 bg-cyan-500/20 border border-cyan-500/40 px-3 py-1 rounded-md inline-block">
-          Data Terakhir Diperbarui: 4 Juli 2026 pukul 12.30 WIB
+          Data Terakhir Diperbarui: 4 Juli 2026 pukul 13.00 WIB
         </p>
+
+        {/* 💡 KOMPONEN COUNTDOWN DIMASUKKAN DI SINI */}
+        <CountdownTimer />
 
         <div className="hidden md:flex justify-center gap-4 mt-8">
           <button 
@@ -933,6 +974,7 @@ export default function Home() {
               resetFilter={resetFilter}
             />
 
+            {/* 💡 MENU KATEGORI SEKARANG SUDAH STICKY DI MOBILE */}
             <WishlistCategoryMenu 
               activeCategory={activeWishlistCat} 
               setActiveCategory={setActiveWishlistCat} 
