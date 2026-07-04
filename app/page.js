@@ -542,8 +542,9 @@ export default function Home() {
     return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
   };
 
+  // 💡 PERBAIKAN DI SINI: Cache buster + Sinkronisasi data aman tanpa hapus wishlist
   useEffect(() => {
-    fetch("/data.json")
+    fetch(`/data.json?v=${new Date().getTime()}`)
       .then((res) => res.json())
       .then((data) => {
         const dataBersih = data.map(job => ({
@@ -554,6 +555,19 @@ export default function Home() {
 
         setAllJobs(dataBersih);
         
+        // 🔄 Sinkronkan data internal wishlist dengan data pelamar terbaru dari JSON baru
+        setWishlist(prevWishlist => {
+          if (!Array.isArray(prevWishlist)) return [];
+          return prevWishlist.map(item => {
+            if (!item || !item.job) return item;
+            const dataTerbaru = dataBersih.find(
+              j => j.Posisi === item.job.Posisi && j.Perusahaan === item.job.Perusahaan
+            );
+            // Angka pelamar update, tapi status Prioritas & Catatan Anda aman tersimpan
+            return dataTerbaru ? { ...item, job: dataTerbaru } : item;
+          });
+        });
+
         const uniqueJurusan = new Set();
         dataBersih.forEach(job => {
           const extracted = extractJurusanData(job.Requirements);
@@ -637,7 +651,6 @@ export default function Home() {
     setCurrentPage(1); 
     setExpandedCards({}); 
 
-    // 2. Setup Wishlist Data (wishlist state)
     // 2. Setup Wishlist Data (wishlist state)
     let resultWishlist = wishlist.filter(item => {
       const matchFilter = filterFunction(item.job);
@@ -740,8 +753,6 @@ export default function Home() {
   const handleOnDragEnd = (result) => {
     if (!result.destination) return;
     
-    // Logic drag-and-drop ini memindahkan index visual di tab saat ini, 
-    // Jika data sedang ter-filter kuat, urutan asli di state utama tetap terjaga untuk mencegah bug
     const items = Array.from(wishlist);
     const prioritasItems = items.filter(item => item?.isShortlist);
     const nonPrioritasItems = items.filter(item => !item?.isShortlist);
@@ -790,12 +801,12 @@ export default function Home() {
           Pertamina <span className="text-transparent bg-clip-text bg-linear-to-r from-pink-500 via-purple-400 to-blue-400">Internship</span>
         </h1>
         <p className="mt-4 text-sm md:text-base text-purple-200/70 max-w-3xl mx-auto leading-relaxed">
-  Cari lowongan magang Pertamina 2026 berdasarkan jurusan, lokasi, perusahaan,
-  lalu simpan dan urutkan prioritas lamaranmu dalam satu dashboard.
-</p>
+          Cari lowongan magang Pertamina 2026 berdasarkan jurusan, lokasi, perusahaan,
+          lalu simpan dan urutkan prioritas lamaranmu dalam satu dashboard.
+        </p>
         
         <p className="mt-2 text-[11px] font-semibold uppercase tracking-widest text-cyan-400/80 bg-cyan-500/20 border border-cyan-500/40 px-3 py-1 rounded-md inline-block">
-          Data Terakhir Diperbarui: 3 Juli 2026 pukul 22.00 WIB
+          Data Terakhir Diperbarui: 4 Juli 2026 pukul 12.30 WIB
         </p>
 
         <div className="hidden md:flex justify-center gap-4 mt-8">
@@ -816,7 +827,7 @@ export default function Home() {
         </div>
       </header>
  
-<main className="max-w-7xl w-full mx-auto px-6 md:px-12 mt-10 relative z-10">
+      <main className="max-w-7xl w-full mx-auto px-6 md:px-12 mt-10 relative z-10">
         <StatsDashboard 
           totalJobs={statsData.totalJobs} 
           totalPositions={statsData.totalPositions} 
@@ -936,26 +947,26 @@ export default function Home() {
             
             {activeWishlistCat === 'shortlist' ? (
               <div className="animate-fade-in">
-<div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 border ${
-  isFiltering ? "bg-red-500/5 border-red-500/20" : "bg-yellow-500/5 border-yellow-500/20"
-}`}>
-  <GripVertical className={isFiltering ? "text-red-400" : "text-yellow-400"} size={24} />
-  <div>
-    <p className="text-sm font-bold text-yellow-400">
-      {isFiltering ? "Urutan Dikunci (Filter Aktif)" : "Atur Prioritas Anda"}
-    </p>
-    <p className="text-xs text-yellow-200/60">
-      {isFiltering 
-        ? "Silakan Reset Filter untuk menyusun ulang urutan prioritas." 
-        : "Tahan dan geser ikon garis vertikal pada kartu untuk menyusun urutan."}
-    </p>
-  </div>
-  {isFiltering && (
-    <button onClick={resetFilter} className="ml-auto text-xs font-bold bg-red-500/20 px-3 py-1.5 rounded-lg text-red-400 hover:bg-red-500/30 transition-all">
-      Reset Filter
-    </button>
-  )}
-</div>
+                <div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 border ${
+                  isFiltering ? "bg-red-500/5 border-red-500/20" : "bg-yellow-500/5 border-yellow-500/20"
+                }`}>
+                  <GripVertical className={isFiltering ? "text-red-400" : "text-yellow-400"} size={24} />
+                  <div>
+                    <p className="text-sm font-bold text-yellow-400">
+                      {isFiltering ? "Urutan Dikunci (Filter Aktif)" : "Atur Prioritas Anda"}
+                    </p>
+                    <p className="text-xs text-yellow-200/60">
+                      {isFiltering 
+                        ? "Silakan Reset Filter untuk menyusun ulang urutan prioritas." 
+                        : "Tahan dan geser ikon garis vertikal pada kartu untuk menyusun urutan."}
+                    </p>
+                  </div>
+                  {isFiltering && (
+                    <button onClick={resetFilter} className="ml-auto text-xs font-bold bg-red-500/20 px-3 py-1.5 rounded-lg text-red-400 hover:bg-red-500/30 transition-all">
+                      Reset Filter
+                    </button>
+                  )}
+                </div>
                 
                 {paginatedWishlist.length === 0 ? (
                   <div className="text-center py-16 bg-white/[0.02] border border-blue-500/10 rounded-2xl">
