@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Pertamina Internship Finder 2026 | Cyber Explorer UI",
-  description: "Platform modern visualisasi data lowongan magang PT Pertamina (Persero) dengan antarmuka futuristik.",
+  title: "Pertamina Internship Finder 2026",
+  description: "Platform modern visualisasi data lowongan magang PT Pertamina (Persero) 2026",
 };
 
 export default function RootLayout({ children }) {
