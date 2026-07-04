@@ -920,9 +920,9 @@ export default function Home() {
           Data Terakhir Diperbarui: 4 Juli 2026 • 15.15 WIB
         </p>
         
-        <p className="mt-6 text-sm font-semibold uppercase tracking-[0.25em] text-pink-400">
-          Deadline Pendaftaran: 5 Juli 2026 • 23.59 WIB
-        </p>
+        <p className="mt-4 text-sm font-semibold text-pink-400">
+  Deadline Pendaftaran: 5 Juli 2026 • 23.59 WIB
+</p>
 
 <CountdownTimer />
 
@@ -1196,10 +1196,13 @@ export default function Home() {
       </main>
 
       <footer className="w-full mt-20 py-8 border-t border-purple-500/10 bg-black/20 backdrop-blur-md relative z-10 text-center">
-        <p className="text-xs font-medium tracking-wider text-purple-300/40">
-          © {new Date().getFullYear()} Pertamina Internship Explorer · Developed by kinannwidya
-        </p>
-      </footer>
+      <p className="text-xs tracking-wider text-purple-300/40">
+        © {new Date().getFullYear()} Pertamina Internship Explorer · Developed by{" "}
+        <span className="text-purple-200 font-medium">
+          kinannwidya
+        </span>
+      </p>
+    </footer>
 
       <BottomNav 
         activeTab={activeTab} 
