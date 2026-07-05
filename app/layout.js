@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -22,6 +23,7 @@ export default function RootLayout({ children }) {
       {/* 💡 DIUBAH: Menggunakan text-white dan bg-[#0d0614] solid agar kontrasnya keluar tajam */}
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-full flex flex-col bg-[#0d0614] font-sans text-white antialiased`}>
         {children}
+        <Analytics />
       </body>
     </html>
   );
